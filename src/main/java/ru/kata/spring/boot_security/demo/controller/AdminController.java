@@ -34,13 +34,9 @@ public class AdminController {
 
     @GetMapping("")
     public String userlistView(Model model, Principal principal) {
-//        String username = principal.getName();
         model.addAttribute("users", userService.getAll());
-//        model.addAttribute("username", principal.getName());
-//        model.addAttribute("userc", userDao.findByUsername(principal.getName()));
         model.addAttribute("user", userDao.findByUsername(principal.getName()));
         model.addAttribute("roles", roleService.getAll());
-//        model.addAttribute("newUser", new User());
         return "admin/userlist";
     }
 
@@ -85,11 +81,5 @@ public String createForm(@ModelAttribute("user") User user, Model model, Princip
         model.addAttribute("roles",roleService.getAll());
         return "admin/userlist";
     }
-//@GetMapping("/{id}/addOrUpdate")
-//public String editForm(Model model,
-//                       @PathVariable("id") long id) {
-//    model.addAttribute("user", userService.get(id));
-//    model.addAttribute("roles", roleService.getAll());
-//    return "redirect:/admin/{id}/addOrUpdate";
-//}
+
 }

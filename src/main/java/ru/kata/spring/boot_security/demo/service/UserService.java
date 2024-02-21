@@ -46,11 +46,6 @@ public class UserService implements UserDetailsService {
     }
     @Transactional
     public void update(Long id, User user) {
-//        User existingUser = get(id);
-//        if (existingUser != null) {
-//            if (user.getPassword() == null) {
-//                user.setPassword(existingUser.getPassword());
-//            }
         user.setId(id);
         userDao.save(user);
         }
