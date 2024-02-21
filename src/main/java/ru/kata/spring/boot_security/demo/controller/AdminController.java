@@ -11,11 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 
 import ru.kata.spring.boot_security.demo.model.User;
+import ru.kata.spring.boot_security.demo.repositories.UserDao;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
 import javax.validation.Valid;
-import java.util.Collection;
+import java.security.Principal;
 
 
 @Controller
@@ -23,64 +24,72 @@ import java.util.Collection;
 public class AdminController {
     private final UserService userService;
     private final RoleService roleService;
+    private final UserDao userDao;
 
-    public AdminController( UserService userService, RoleService roleService) {
+    public AdminController(UserService userService, RoleService roleService, UserDao userDao) {
         this.userService = userService;
         this.roleService = roleService;
+        this.userDao = userDao;
     }
 
-    @GetMapping
-    public String getAll(Model model) {
-        Collection<User> userList = userService.getAll();
-        model.addAttribute("userlist", userList);
+    @GetMapping("")
+    public String userlistView(Model model, Principal principal) {
+//        String username = principal.getName();
+        model.addAttribute("users", userService.getAll());
+//        model.addAttribute("username", principal.getName());
+//        model.addAttribute("userc", userDao.findByUsername(principal.getName()));
+        model.addAttribute("user", userDao.findByUsername(principal.getName()));
+        model.addAttribute("roles", roleService.getAll());
+//        model.addAttribute("newUser", new User());
         return "admin/userlist";
     }
 
-    @GetMapping("/{id}")
-    public String showUser(@PathVariable("id") long id, Model model) {
-        User user = userService.get(id);
-        model.addAttribute("user", user);
-        return "/admin/show";
-    }
 
-    @GetMapping("/new")
-    public String createForm(@ModelAttribute("user") User user, Model model) {
-        model.addAttribute("roles", roleService.getAll());
-        return "admin/new";
-    }
+@GetMapping("/addUser")
+public String createForm(@ModelAttribute("user") User user, Model model, Principal principal) {
+    model.addAttribute("roles", roleService.getAll());
+    model.addAttribute("userc", userDao.findByUsername(principal.getName()));
+    return "admin/addUserField";
+}
 
-    @PostMapping("/create")
+    @PostMapping("/addOrUpdate")
     public String create(@ModelAttribute("user") @Valid User user,
                          BindingResult bindingResult) {
         if (bindingResult.hasErrors())
-            return "admin/new";
+            return "admin/addUserField";
         user.setPassword(user.getPassword());
         userService.create(user);
-        return "redirect:";
+        return "redirect:/admin";
     }
 
-    @PostMapping("/{id}/del")
-    public String delete(@PathVariable("id") long id) {
+    @PostMapping("/removeUser/{id}")
+    public String deleteUser(@PathVariable("id") Long id) {
         userService.delete(id);
         return "redirect:/admin";
     }
 
-    @GetMapping("/{id}/edit")
-    public String editForm(Model model,
-                           @PathVariable("id") long id) {
-        model.addAttribute("user", userService.get(id));
-        model.addAttribute("roles", roleService.getAll());
-        return "admin/edit";
-    }
-
-    @PostMapping("/{id}/edit")
+    @PostMapping ("/{id}/addOrUpdate")
     public String edit(@ModelAttribute("user") @Valid User user,@PathVariable("id") long id,
                        BindingResult bindingResult) {
-        if (bindingResult.hasErrors())
-            return "admin/edit";
-        userService.update(user,id);
+        if (bindingResult.hasErrors()) {
+            return "admin/addUserField";
+        }
+        user.setPassword(user.getPassword());
+        userService.update(id, user);
         return "redirect:/admin";
-
     }
 
+    @GetMapping("/{id}/addOrUpdate")
+    public String userEditForm(@PathVariable("id")Long id,Model model){
+        model.addAttribute("user",userService.get(id));
+        model.addAttribute("roles",roleService.getAll());
+        return "admin/userlist";
+    }
+//@GetMapping("/{id}/addOrUpdate")
+//public String editForm(Model model,
+//                       @PathVariable("id") long id) {
+//    model.addAttribute("user", userService.get(id));
+//    model.addAttribute("roles", roleService.getAll());
+//    return "redirect:/admin/{id}/addOrUpdate";
+//}
 }

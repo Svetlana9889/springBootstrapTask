@@ -16,7 +16,7 @@ public class RoleService {
     }
 
 
-    @Transactional(readOnly = true)
+//    @Transactional(readOnly = true)
     public Collection<Role> getAll() {
         return (Collection<Role>) roleDao.findAll();
     }

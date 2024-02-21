@@ -13,6 +13,7 @@ import ru.kata.spring.boot_security.demo.repositories.UserDao;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.Collection;
+import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -41,19 +42,20 @@ public class UserService implements UserDetailsService {
 
     @Transactional(readOnly = true)
     public Collection<User> getAll() {
-        return (Collection<User>) userDao.findAll();
+        return userDao.findAll();
     }
-
-    public void update(User user, Long id) {
-        User existingUser = get(id);
-        if (existingUser != null) {
-            if (user.getPassword() == null) {
-                user.setPassword(existingUser.getPassword());
-            }
-            user.setId(id);
-        }
+    @Transactional
+    public void update(Long id, User user) {
+//        User existingUser = get(id);
+//        if (existingUser != null) {
+//            if (user.getPassword() == null) {
+//                user.setPassword(existingUser.getPassword());
+//            }
+        user.setId(id);
         userDao.save(user);
-    }
+        }
+
+
 
 
     public void delete(long id) {
