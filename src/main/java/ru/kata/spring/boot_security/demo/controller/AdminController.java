@@ -70,7 +70,6 @@ public String createForm(@ModelAttribute("user") User user, Model model, Princip
         if (bindingResult.hasErrors()) {
             return "admin/addUserField";
         }
-        user.setPassword(user.getPassword());
         userService.update(id, user);
         return "redirect:/admin";
     }
