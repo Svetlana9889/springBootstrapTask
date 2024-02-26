@@ -7,24 +7,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.model.User;
-import ru.kata.spring.boot_security.demo.repositories.RoleDao;
-import ru.kata.spring.boot_security.demo.repositories.UserDao;
+import ru.kata.spring.boot_security.demo.repositories.RoleRepository;
+import ru.kata.spring.boot_security.demo.repositories.UserRepository;
 
 
 import javax.persistence.EntityNotFoundException;
 import java.util.Collection;
-import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService {
-    private final UserDao userDao;
-    private final RoleDao roleDao;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
 
-    public UserService(UserDao userDao, RoleDao roleDao, PasswordEncoder passwordEncoder) {
-        this.userDao = userDao;
-        this.roleDao = roleDao;
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
 
     }
@@ -32,56 +29,36 @@ public class UserService implements UserDetailsService {
     public void create(User user) {
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
-        userDao.save(user);
+        userRepository.save(user);
     }
 
     @Transactional(readOnly = true)
     public User get(long id) {
-        return userDao.findById(id).orElseThrow(() -> new EntityNotFoundException("Entity not found"));
+        return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Entity not found"));
     }
 
     @Transactional(readOnly = true)
     public Collection<User> getAll() {
-        return userDao.findAll();
+        return userRepository.findAll();
     }
+
     @Transactional
     public void update(Long id, User user) {
         user.setId(id);
-        userDao.save(user);
-        }
-
-
-
+        userRepository.save(user);
+    }
 
     public void delete(long id) {
-        userDao.deleteById(id);
-    }
-
-    public void delete(User user) {
-        userDao.delete(user);
-    }
-
-    @Transactional(readOnly = true)
-    public User find(User user) {
-        return get(user.getId());
+        userRepository.deleteById(id);
     }
 
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userDao.findByUsername(username);
+        User user = userRepository.findByUsername(username);
         if(user==null){
             throw new UsernameNotFoundException("No Username");
         }
-
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
-                user.getRoles());
+        return user;
     }
-
-
-    public User showUser(String username) {
-        return userDao.findByUsername(username);
-
-    }
-
 }

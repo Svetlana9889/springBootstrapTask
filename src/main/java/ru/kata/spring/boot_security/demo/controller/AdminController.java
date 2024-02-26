@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 
 import ru.kata.spring.boot_security.demo.model.User;
-import ru.kata.spring.boot_security.demo.repositories.UserDao;
+import ru.kata.spring.boot_security.demo.repositories.UserRepository;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
@@ -24,18 +24,18 @@ import java.security.Principal;
 public class AdminController {
     private final UserService userService;
     private final RoleService roleService;
-    private final UserDao userDao;
+    private final UserRepository userRepository;
 
-    public AdminController(UserService userService, RoleService roleService, UserDao userDao) {
+    public AdminController(UserService userService, RoleService roleService, UserRepository userRepository) {
         this.userService = userService;
         this.roleService = roleService;
-        this.userDao = userDao;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("")
     public String userlistView(Model model, Principal principal) {
         model.addAttribute("users", userService.getAll());
-        model.addAttribute("user", userDao.findByUsername(principal.getName()));
+        model.addAttribute("user", userRepository.findByUsername(principal.getName()));
         model.addAttribute("roles", roleService.getAll());
         return "admin/userlist";
     }
@@ -44,7 +44,7 @@ public class AdminController {
 @GetMapping("/addUser")
 public String createForm(@ModelAttribute("user") User user, Model model, Principal principal) {
     model.addAttribute("roles", roleService.getAll());
-    model.addAttribute("userc", userDao.findByUsername(principal.getName()));
+    model.addAttribute("userc", userRepository.findByUsername(principal.getName()));
     return "admin/addUserField";
 }
 
