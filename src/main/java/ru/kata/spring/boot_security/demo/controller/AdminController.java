@@ -41,12 +41,12 @@ public class AdminController {
     }
 
 
-@GetMapping("/addUser")
-public String createForm(@ModelAttribute("user") User user, Model model, Principal principal) {
-    model.addAttribute("roles", roleService.getAll());
-    model.addAttribute("userc", userRepository.findByUsername(principal.getName()));
-    return "admin/addUserField";
-}
+    @GetMapping("/addUser")
+    public String createForm(@ModelAttribute("user") User user, Model model, Principal principal) {
+        model.addAttribute("roles", roleService.getAll());
+        model.addAttribute("userc", userRepository.findByUsername(principal.getName()));
+        return "admin/addUserField";
+    }
 
     @PostMapping("/addOrUpdate")
     public String create(@ModelAttribute("user") @Valid User user,
